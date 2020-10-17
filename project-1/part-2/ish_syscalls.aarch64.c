@@ -97,7 +97,6 @@ int ish_open(const char *path, int flags)
  * to simulate creat
  * set flags = (O_CREAT | O_WRONLY | O_TRUNC) (577)
  * set fd = AT_FDCWD (-100)
- * set mode = 0
 */
 int ish_creat(const char *path, unsigned int mode)
 {
