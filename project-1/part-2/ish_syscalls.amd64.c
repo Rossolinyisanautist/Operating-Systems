@@ -1,9 +1,8 @@
-#include <stdio.h>
 #define asm __asm__
 #define vltl __volatile__
 #define naked __attribute__((naked))
 
-/*
+
 // volatile is implicitly defined for basic asm
 asm (
     ".global ish_read\n\t"
@@ -17,20 +16,22 @@ asm (
         "ret"
 );
 extern long ish_read(int, void*, unsigned long);
-*/
 
+/*
 long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
 {
-    int res = -1; // used int on purpose. this is not the cause of error in ish_open
+    long res = -1;
     __asm__ __volatile__ (
         "xor %%rax, %%rax\n\t"
         "syscall\n\t"
-        : "=rm"(res) //
+        "mov %%rax, %0\n\t"
+        : "=r"(res)
         :
         : "%rax"
     );
     return res;
 }
+*/
 
 
 naked int ish_chdir(const char* path)
@@ -90,7 +91,7 @@ int ish_open(const char *path, int flags)
         "mov $2, %%rax\n\t"
         "syscall\n\t"
         "mov %%eax, %0\n\t"
-        : "=rm"(res)
+        : "=r"(res)
         :
         : "%rax"
     );
@@ -113,52 +114,92 @@ int ish_creat(const char *path, unsigned int mode)
 
 int ish_dup2(int old_file_descriptor, int new_file_descriptor)
 {
-    // TODO
+    int res = -1;
+    asm vltl (
+        "mov $33, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%eax, %0\n\t"
+        : "=r"(res)        
+        :
+        : "%rax"
+    );
 
-    return -1;
+    return res;
 }
 
 int ish_close(int file_descriptor)
 {
-    // TODO
+    int res = -1;
+    asm vltl (
+        "mov $3, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%eax, %0\n\t"
+        : "=r"(res)
+        :
+        : "%rax"
+    );
 
-    return -1;
+    return res;
 }
 
 int ish_fork()
 {
-    // TODO
+    int res = -1;
+    asm vltl(
+        "mov $57, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%eax, %0\n\t"
+        : "=r"(res)
+        :
+        : "%rax"
+    );
 
-    return -1;
+    return res;
 }
 
-int ish_execve(
-        const char *path,
-        char *const arguments[],
-        char *const environment[]
-    )
+int ish_execve(const char *path, char *const arguments[], char *const environment[])
 {
-    // TODO
+    int res = -1;
+    asm vltl (
+        "mov $59, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%eax, %0\n\t"
+        : "=r"(res)
+        :
+        : "%rax"
+    );
 
-    return -1;
+    return res;
 }
 
 int ish_waitpid(int pid, int *status, int options)
 {
-    // TODO
+    int res = -1;
+    asm vltl(
+        "mov $61, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%eax, %0\n\t"
+        : "=r"(res)
+        :
+        : "%rax"
+    );
 
-    return -1;
+    return res;
 }
 
-long ish_write(
-        int file_descriptor,
-        const void *buffer,
-        unsigned long buffer_size
-     )
+long ish_write(int file_descriptor, const void *buffer, unsigned long buffer_size)
 {
-    // TODO
+    long res = -1;
+    asm vltl (
+        "mov $1, %%rax\n\t"
+        "syscall\n\t"
+        "mov %%rax, %0\n\t"
+        : "=r"(res)
+        :
+        : "%rax"        
+    );
 
-    return -1;
+    return res;
 }
 
 #ifdef naked
