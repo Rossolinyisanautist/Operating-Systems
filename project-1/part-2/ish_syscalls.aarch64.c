@@ -67,7 +67,7 @@ int ish_stat(const char *path, void *stat_result)
 
 /* 
  * open is implemented using 
- *      int openat(int fd, int path, int flags)
+ *      int openat(int fd, int path, int flags, mode_t mode)
  *
  * we simulate open in curr work dir by 
  * sending AT_FDCWD(-100) as fd param
@@ -92,11 +92,12 @@ int ish_open(const char *path, int flags)
 
 /*
  * creat is implemented through 
- *      int openat(int fd, int path, int flags)
+ *      int openat(int fd, int path, int flags, mode_t mode)
  *
  * to simulate creat
  * set flags = (O_CREAT | O_WRONLY | O_TRUNC) (577)
  * set fd = AT_FDCWD (-100)
+ * set mode = 0
 */
 int ish_creat(const char *path, unsigned int mode)
 {
