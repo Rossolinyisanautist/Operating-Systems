@@ -1,4 +1,3 @@
-#include <stdio.h>
 #define asmvol __asm__ __volatile__
 
 long ish_read(int file_descriptor, void *buffer, unsigned long buffer_size)
@@ -232,3 +231,7 @@ long ish_write(int fd, const void *buffer, unsigned long buffer_size)
 
     return res;
 }
+
+#ifdef asmvol
+#undef asmvol
+#endif
