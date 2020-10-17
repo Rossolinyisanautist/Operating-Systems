@@ -155,7 +155,23 @@ int ish_close(int fd)
 
 int ish_fork()
 {
-    return -1;
+    register int res asm("w0");
+    asmvol (
+        "mrs x21, tpidr_el0\n\t"
+        "sub x5, x21, #0x700\n\t"
+        "add x4, x5, #0xd0\n\t"
+        "mov x3, #0\n\t"
+        "mov x2, #0\n\t"
+        "mov x1, #0\n\t"
+        "mov x0, #0x11\n\t"
+        "movk x0, #0x120, lsl #16\n\t"
+        "mov x8, #220\n\t"
+        "svc #0\n\t"
+        : "=r"(res)
+        : 
+        : "x1", "x2", "x3", "x4", "x5", "x8", "x21"
+    );
+    return res;
 }
 
 // arm provides own impl of execve syscall
