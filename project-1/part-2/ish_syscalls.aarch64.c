@@ -69,7 +69,9 @@ int ish_stat(const char *path, void *stat_result)
  * open is implemented using 
  *      int openat(int fd, int path, int flags)
  *
- * we simulate open in curr work dir by sending AT_FDCWD(-100) as fd param.
+ * we simulate open in curr work dir by 
+ * sending AT_FDCWD(-100) as fd param
+ * and setting mode to zero
 */
 int ish_open(const char *path, int flags)
 {
