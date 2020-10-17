@@ -177,11 +177,12 @@ int ish_waitpid(int pid, int *status, int options)
     int res = -1;
     asm vltl(
         "mov $61, %%rax\n\t"
+        "xor %%r10, %%r10\n\t"
         "syscall\n\t"
         "mov %%eax, %0\n\t"
         : "=r"(res)
         :
-        : "%rax"
+        : "%rax", "%r10"
     );
 
     return res;
