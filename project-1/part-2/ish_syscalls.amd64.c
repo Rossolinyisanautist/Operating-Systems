@@ -2,7 +2,7 @@
 #define vltl __volatile__
 #define naked __attribute__((naked))
 
-
+// read works
 // volatile is implicitly defined for basic asm
 asm (
     ".global ish_read\n\t"
@@ -18,22 +18,22 @@ asm (
 extern long ish_read(int, void*, unsigned long);
 
 /*
+// works too
 long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
 {
     long res = -1;
     __asm__ __volatile__ (
         "xor %%rax, %%rax\n\t"
         "syscall\n\t"
-        "mov %%rax, %0\n\t"
-        : "=r"(res)
+        : "=a"(res)
         :
-        : "%rax"
+        :
     );
     return res;
 }
 */
 
-
+// chdir works
 naked int ish_chdir(const char* path)
 {
     asm vltl (
@@ -45,6 +45,7 @@ naked int ish_chdir(const char* path)
         "pop %rbp\n\t"
         "ret\n\t"
     );
+    // works too
     /*
     int res = 0;
     __asm__ __volatile__ (
@@ -58,146 +59,148 @@ naked int ish_chdir(const char* path)
     */
 }
 
+// tested. works
 void ish_exit(int status)
 {
     asm vltl (
         "mov $60, %%rax\n\t"
+        "mov %[status], %%edi\n\t"
         "syscall\n\t"
         :
-        :
-        : "%rax"
+        : [status]"r"(status)
+        : "%rax", "%rdi"
     );
 }
 
-
+// tested. works
 int ish_stat(const char* path, void* stat_result)
 {   
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $4, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
-        : "=rm" (res)
+        : "=r"(res)
+        : "D"(path),"S"(stat_result)
         : 
-        : "%rax"
     );    
     return res;
 }
 
+// tested. works 
 int ish_open(const char *path, int flags)
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $2, %%rax\n\t"
         "syscall\n\t"
         "mov %%eax, %0\n\t"
         : "=r"(res)
-        :
-        : "%rax"
+        : "D"(path), "S"(flags)
+        : 
     );
     return res;
 }
 
+// works
 int ish_creat(const char *path, unsigned int mode)
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $85, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=rm"(res)
+        : "D"(path), "S"(mode)
         :
-        : "%rax"
     );
     return res;
 }
 
-int ish_dup2(int old_file_descriptor, int new_file_descriptor)
+// works
+int ish_dup2(int old_fd, int new_fd)
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $33, %%rax\n\t"
         "syscall\n\t"
         "mov %%eax, %0\n\t"
         : "=r"(res)        
-        :
-        : "%rax"
+        : "D"(old_fd), "S"(new_fd)
+        : 
     );
 
     return res;
 }
 
+// works
 int ish_close(int file_descriptor)
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $3, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)
-        :
-        : "%rax"
+        : "D"(file_descriptor)
+        : 
     );
 
     return res;
 }
 
+// works
 int ish_fork()
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl(
         "mov $57, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)
         :
-        : "%rax"
+        :
     );
 
     return res;
 }
 
+// works
 int ish_execve(const char *path, char *const arguments[], char *const environment[])
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl (
         "mov $59, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)
-        :
-        : "%rax"
+        : "D"(path), "S"(arguments), "d"(environment)
+        : 
     );
 
     return res;
 }
 
+// works
 int ish_waitpid(int pid, int *status, int options)
 {
-    int res = -1;
+    register int res asm("%eax");
     asm vltl(
         "mov $61, %%rax\n\t"
-        "xor %%r10, %%r10\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)
+        : "D"(pid), "S"(status), "d"(options)
         :
-        : "%rax", "%r10"
     );
 
     return res;
 }
 
+// works
 long ish_write(int file_descriptor, const void *buffer, unsigned long buffer_size)
 {
-    long res = -1;
+    register long res asm("%eax");
     asm vltl (
         "mov $1, %%rax\n\t"
         "syscall\n\t"
-        "mov %%rax, %0\n\t"
         : "=r"(res)
-        :
-        : "%rax"        
+        :"D"(file_descriptor), "S"(buffer), "d"(buffer_size)
+        : 
     );
 
     return res;
