@@ -21,7 +21,7 @@ extern long ish_read(int, void*, unsigned long);
 // works too
 long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
 {
-    register long res asm("%eax");
+    register long res asm("%rax");
     __asm__ __volatile__ (
         "xor %%rax, %%rax\n\t"
         "syscall\n\t"
