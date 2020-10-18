@@ -25,7 +25,7 @@ long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
     __asm__ __volatile__ (
         "xor %%rax, %%rax\n\t"
         "syscall\n\t"
-        : "=a"(res)
+        : "=r"(res)
         :
         :
     );
@@ -33,6 +33,7 @@ long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
 }
 */
 
+// experiment with naked func
 // chdir works
 naked int ish_chdir(const char* path)
 {
@@ -47,13 +48,13 @@ naked int ish_chdir(const char* path)
     );
     // works too
     /*
-    int res = 0;
+    register int res asm("%eax");
     __asm__ __volatile__ (
     "mov $80, %%rax\n\t"
     "syscall\n\t"
     : "=r" (res)
     :
-    : "%rax"
+    :
     );
     return res;
     */
@@ -92,11 +93,11 @@ int ish_open(const char *path, int flags)
     register int res asm("%eax");
     asm vltl (
         "mov $2, %%rax\n\t"
+        "xor %%rdx, %%rdx\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)
         : "D"(path), "S"(flags)
-        : 
+        : "%rdx"
     );
     return res;
 }
@@ -108,7 +109,7 @@ int ish_creat(const char *path, unsigned int mode)
     asm vltl (
         "mov $85, %%rax\n\t"
         "syscall\n\t"
-        : "=rm"(res)
+        : "=r"(res)
         : "D"(path), "S"(mode)
         :
     );
@@ -122,7 +123,6 @@ int ish_dup2(int old_fd, int new_fd)
     asm vltl (
         "mov $33, %%rax\n\t"
         "syscall\n\t"
-        "mov %%eax, %0\n\t"
         : "=r"(res)        
         : "D"(old_fd), "S"(new_fd)
         : 
@@ -182,10 +182,11 @@ int ish_waitpid(int pid, int *status, int options)
     register int res asm("%eax");
     asm vltl(
         "mov $61, %%rax\n\t"
+        "xor %%r10, %%r10\n\t" // no rusage
         "syscall\n\t"
         : "=r"(res)
         : "D"(pid), "S"(status), "d"(options)
-        :
+        : "%r10"
     );
 
     return res;
