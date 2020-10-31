@@ -2,6 +2,9 @@
 #define vltl __volatile__
 #define naked __attribute__((naked))
 
+/*
+ * disable this code as it may produce errors
+ * if compiler decides to discard ish_read
 // read works
 // volatile is implicitly defined for basic asm
 asm (
@@ -16,8 +19,8 @@ asm (
         "ret"
 );
 extern long ish_read(int, void*, unsigned long);
+*/
 
-/*
 // works too
 long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
 {
@@ -26,12 +29,12 @@ long ish_read(int file_descriptor, void* buffer, unsigned long buffer_size)
         "xor %%rax, %%rax\n\t"
         "syscall\n\t"
         : "=r"(res)
-        :
+        : "D"(file_descriptor), "S"(buffer), "d"(buffer_size)
         :
     );
     return res;
 }
-*/
+
 
 // experiment with naked func
 // chdir works
