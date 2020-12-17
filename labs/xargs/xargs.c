@@ -56,7 +56,6 @@ int main(int argc, char** argv, char** envp)
 	char to_run[MAX_EXE_PATH_LEN];
 	if(argc == 1)
 	{
-		puts("Please provide argument");
 		return -1;
 	}
 	else{
@@ -64,7 +63,7 @@ int main(int argc, char** argv, char** envp)
 		char candidate[MAX_EXE_PATH_LEN];
 		char stat_res[256];
 
-		if(stat(to_run, stat_res) != 0)
+		if(stat(to_run, (struct stat*) stat_res) != 0)
 		{
 			to_run[0] = 0;
 
@@ -90,7 +89,7 @@ int main(int argc, char** argv, char** envp)
 
 					
 
-					if(stat(candidate, stat_res) == 0)
+					if(stat(candidate,(struct stat*) stat_res) == 0)
 					{
 						cand_p = candidate;
 						exe = to_run;
