@@ -1,0 +1,13 @@
+qemu/
+qemu_old/
+*.tar.gz
+*.iso
+*.qcow2
+*.old
+*.efi
+*.elf
+*.fd
+*.raw
+*.img
+kernel
+initrd
